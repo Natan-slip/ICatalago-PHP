@@ -1,6 +1,7 @@
 <?php
     require("../../database/conexao.php");
-?>    
+  session_start();
+?>
 
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -22,6 +23,21 @@
       <main>
         <form class="form-produto" method="POST" action="action.php">
           <h1>Cadastro de produto</h1>
+          <ul>
+          <?php
+            //verifica se existe erros na sessão do usuario
+            if(isset($_SESSION['erros'])){
+              $erros = $_SESSION['erros'];
+              foreach ($erros as $erro) {
+          ?>
+            <li><?= $erro ?></li>
+          <?php
+              }
+              //eliminar da sessão os erros ja mostrado
+              unset($_SESSION['erros']);
+            }
+          ?>
+          </ul>
           <div class="input-group span2">
             <label for="descricao">Descrição</label>
             <input type="text" id="descricao" name="descricao" required>
