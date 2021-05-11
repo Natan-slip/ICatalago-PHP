@@ -25,14 +25,20 @@
     document.querySelector("#menu-admin").addEventListener("click", toggleLogin);
 
     function toggleLogin() {
-        
         let containerLogin = document.querySelector("#container-login");
-
+        let h1Form = document.querySelector("#container-login > h1");
+        let form = document.querySelector("#container-login > form");
+        //se estiver oculto, mostra 
         if (containerLogin.style.opacity == 0) {
+            h1Form.style.display = "block";
+            form.style.display = "flex";
             containerLogin.style.opacity = 1;
             containerLogin.style.height = "200px";
+            //se não, oculta
         } 
         else {
+            h1Form.style.display = "none";
+            form.style.display = "none";
             containerLogin.style.opacity = 0;
             containerLogin.style.height = "0px";
         }

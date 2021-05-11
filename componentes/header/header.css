@@ -76,16 +76,14 @@ overflow: hidden;
 }
 
 .container-login > form {
-  display: flex;
+  display: none;
   flex-direction: column;
   gap: 10px;
+}
+.container-login > h1 {
+  display: none;
 }
 
 .container-login input {
   width: 100%;
-}
-
-.container-login > h1 {
-  color: var(--textSecundary);
-  font-size: 20px;
 }
