@@ -1,3 +1,6 @@
+<?php
+    session_start();
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -16,7 +19,7 @@
     <div class="content">
         <section class="produtos-container">
             <?php
-                //
+                
             ?>
             <header>
                 <button onclick="javascript:window.location.href ='./novo/'">Novo Produto</button>

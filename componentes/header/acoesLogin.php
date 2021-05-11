@@ -5,7 +5,7 @@ session_start();
 
 require("../../database/conexao.php");
 
-function validarCampos(){
+/*function validarCampos(){
     $erros = [];
 
     if (!isset($_POST['usuario']) && $_POST['usuario'] == "") {
@@ -17,14 +17,13 @@ function validarCampos(){
     }
 
     return $erros;
-}
-
+}*/
 
 switch($_POST["acao"]){
 
     case "login":
 
-        if(isset($_POST['nome']) && isset($_POST['usuario']) && isset($_POST['senha'])){
+        if(isset($_POST['usuario']) && isset($_POST['senha'])){
 
             $usuario = $_POST['usuario'];
             $senha = $_POST['senha'];
@@ -33,7 +32,7 @@ switch($_POST["acao"]){
 
             $sqlSelect = "SELECT * FROM tbl_administrador WHERE usuario = '$usuario'";
 
-            $resultado = mysqli_query($conexao, $sqlInsert) or die(mysqli_error($conexao));
+            $resultado = mysqli_query($conexao, $sqlSelect) or die(mysqli_error($conexao));
             $dados = mysqli_fetch_array($resultado);
         
         //receber os campos do fomulário
@@ -51,7 +50,7 @@ switch($_POST["acao"]){
             
         }
         
-        header("location: ../../produtos/index.php");    
+        header("location: /web-backend/ICatalogo/produtos/index.php");    
 
         break;
 
