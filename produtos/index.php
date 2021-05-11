@@ -10,11 +10,14 @@
 </head>
 
 <body>
-    <header>
-        <input type="search" placeholder="Pesquisar" />
-    </header>
+    <?php
+        include("../componentes/header/header.php");
+    ?>
     <div class="content">
         <section class="produtos-container">
+            <?php
+                //
+            ?>
             <header>
                 <button onclick="javascript:window.location.href ='./novo/'">Novo Produto</button>
                 <button>Adicionar Categoria</button>
