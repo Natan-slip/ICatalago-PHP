@@ -5,61 +5,70 @@ session_start();
 
 require("../../database/conexao.php");
 
-/*function validarCampos(){
+function validarCampos() {
+
     $erros = [];
 
-    if (!isset($_POST['usuario']) && $_POST['usuario'] == "") {
-        $erros[] = "O campo usuario é obrigatório";
+    if(!isset($_POST["usuario"]) && $_POST["usuario"] == "") {
+        $erros = "O campo usuário é obrigatório";
     }
 
-    if (!isset($_POST['senha']) && $_POST['senha'] == "") {
-        $erros[] = "O campo senha é obrigatório";
+    if(!isset($_POST["senha"]) && $_POST["senha"] == "") {
+        $erros = "O campo senha é obrigatório";
     }
-
-    return $erros;
-}*/
+}
 
 switch($_POST["acao"]){
 
     case "login":
 
-        if(isset($_POST['usuario']) && isset($_POST['senha'])){
+        $erros = validarCampos();
 
+        if(count($erros) > 0) {
+            $_SESSION["mensagem"] = $erros;
+        }
+
+            //receber os campos do fomulário
             $usuario = $_POST['usuario'];
             $senha = $_POST['senha'];
+   
+            //monstar o sql select na tabela tbl_adminitrador
+            //SELECT * FROM tbl_adminitrador WHERE usuario = $usuario;
+            $sql = "SELECT * FROM tbl_administrador WHERE usuario = '$usuario'";
 
-        }    
+            //executar o sql
+            $resultado = mysqli_query($conexao, $sql);
 
-            $sqlSelect = "SELECT * FROM tbl_administrador WHERE usuario = '$usuario'";
+            $usuario = mysqli_fetch_array($resultado);
 
-            $resultado = mysqli_query($conexao, $sqlSelect) or die(mysqli_error($conexao));
-            $dados = mysqli_fetch_array($resultado);
-        
-        //receber os campos do fomulário
-        //monstar o sql select na tabela tbl_adminitrador
-        //SELECT * FROM tbl_adminitrador WHERE usuario = $usuario;
-        //$usuario["senha"] -- $senha;
-        //verificar se o usuário existe e se a senha está correta
-        //se estiver correta, salvar o id e o nome do usuário na sessão
-        //redirecionar para tela de listagem de produtos
+            //verificar se o usuário existe e se a senha está correta
+            if(!$usuario || !password_verify($senha, $usuario["senha"])) {
+                $erros[] = "Usuário e/ou senha inválidos";
 
-        if($usuario == $dados['usuario'] && $senha == $dados['senha']){
+                $_SESSION["erros"] = $erros;
+            }
+            else {
 
-            $_SESSION['id'] = $dados['id'];
-            $_SESSION['nome'] = $dados['nome'];
-            
-        }
-        
-        header("location: /web-backend/ICatalogo/produtos/index.php");    
+                //se estiver correta, salvar o id e o nome do usuário na sessão
+                $_SESSION["usuarioId"] = $usuario["id"];   
+                $_SESSION["usuarioNome"] = $usuario["id"];
 
-        break;
+                $_SESSION["mensagem"] = "Bem vindo, ". $usuario["nome"];
+
+            }
+
+            //redirecionar para tela de listagem de produtos
+            header("location: ../../produtos/index.php");    
+
+            break;
 
 
     case "logout":
 
         //implementar o logout
+        session_destroy();
 
-
+        header("location: ../../produtos/index.php"); 
 
         break;
 
