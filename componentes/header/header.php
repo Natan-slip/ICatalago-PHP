@@ -1,6 +1,7 @@
 <?php
     session_start();
 ?>
+
 <link rel="stylesheet" href="/web-backend/ICatalogo/componentes/header/header.css">
 
 <header class="header">
@@ -22,8 +23,8 @@
             <input type="hidden" name="login" value="login"/>
             <input type="text" name="usuario" placeholder="Usuário" />
             <input type="password" name="senha" placeholder="Senha" />
-
             <button>Entrar</button>
+            
         </form>
     </div>
     <?php

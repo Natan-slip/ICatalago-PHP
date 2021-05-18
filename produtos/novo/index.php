@@ -1,6 +1,11 @@
 <?php
-    require("../../database/conexao.php");
-  session_start();
+
+  require("../../database/conexao.php");
+
+  $sql = "SELECT * FROM tbl_categoria";
+
+  $resultado = mysqli_query($conexao, $sql);
+
 ?>
 
 <!DOCTYPE html>
@@ -16,27 +21,35 @@
 
 <body>
   <?php
-      include("../componentes/header/header.php");
+      include("../../componentes/header/header.php");
+
+      if (!isset($_SESSION["usuarioId"])) {
+
+        $_SESSION["mensagem"] = "Você precisa fazer o login para ter acesso há essa página.";
+
+        header("location: ../index.php");
+      }
   ?>
   <div class="content">
     <section class="produtos-container">
       <main>
-        <form class="form-produto" method="POST" action="action.php">
+        <form class="form-produto" method="POST" action="action.php" enctype="multipart/form-data">
+          <input type="hidden" name="acao" value="inserir" />
           <h1>Cadastro de produto</h1>
           <ul>
           <?php
-            //verifica se existe erros na sessão do usuario
-            if(isset($_SESSION['erros'])){
-              $erros = $_SESSION['erros'];
-              foreach ($erros as $erro) {
-          ?>
-            <li><?= $erro ?></li>
-          <?php
+
+            if (isset($_SESSION["erros"])) {
+
+              foreach ($_SESSION["erros"] as $erro) {
+            ?>
+                <li><?= $erro ?></li>
+            <?php
               }
-              //eliminar da sessão os erros ja mostrado
-              unset($_SESSION['erros']);
+
+              unset($_SESSION["erros"]);
             }
-          ?>
+            ?>
           </ul>
           <div class="input-group span2">
             <label for="descricao">Descrição</label>
@@ -72,7 +85,23 @@
             <label for="desconto">Desconto</label>
             <input type="text" id="desconto" name="desconto" placeholder="Apenas inserir o número">
           </div>
-
+          <div class="input-group">
+            <label for="categoria">Categoria</label>
+            <select id="categoria" name="categoria" required>
+              <option value="">SELECIONE</option>
+              <?php
+              while ($categoria = mysqli_fetch_array($resultado)) {
+              ?>
+                <option value="<?= $categoria["id"] ?>"> <?= $categoria["descricao"] ?></option>
+              <?php
+              }
+              ?>  
+            </select>
+          </div>
+          <div class="input-group">
+            <label for="categoria">Foto</label>
+            <input type="file" name="foto" id="foto" accept="image/*" />
+          </div>  
           <button onclick="javascript:window.location.href = '../'">Cancelar</button>
           <button>Salvar</button>
         </form>

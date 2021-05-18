@@ -20,6 +20,8 @@ switch ($_POST["acao"]) {
         if (count($erros) > 0) {
             $_SESSION["erros"] = $erros;
             header("location: index.php");
+
+            exit();
         }
         //receber os campos do formulário
         $descricao = $_POST["descricao"];
@@ -40,11 +42,18 @@ switch ($_POST["acao"]) {
 
     case "deletar":
 
-        $id = $_POST["idCategoria"];
+        $categoriaId = $_POST["categoriaId"];
 
-        $sqlDelecao = "DELETE FROM tbl_categoria WHERE id = $idCategoria";
+        $sqlDelecao = "DELETE FROM tbl_categoria WHERE id = $categoriaId";
 
-        $resultado = mysqli_query($conexao, $sqlDelecao) or die(mysqli_error($conexao));
+        $resultado = mysqli_query($conexao, $sql);
+
+        if ($resultado) {
+            $_SESSION["mensagem"] = "Categoria deletada";
+        }
+        else {
+            $_SESSION["mensagem"] = "Erro ao excluir";
+        }
 
         header("location: ./index.php");
     break;
