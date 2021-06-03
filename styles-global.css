@@ -25,9 +25,7 @@ body {
   flex-direction: column;
 }
 
-body > header input {
-  width: 50%;
-}
+
 
 .content {
   width: 90%;
@@ -50,7 +48,7 @@ footer {
   background-color: var(--backgroundSecondary);
 }
 
-input {
+input, select {
   padding: 6px 8px;
 
   border: 2px solid transparent;
@@ -115,3 +113,4 @@ h1 em {
   border: 1px solid whitesmoke;
   border-radius: 4px;
 }
+

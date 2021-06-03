@@ -39,11 +39,14 @@
   align-items: center;
 
   border-bottom: 1px solid var(--backgroundSecondary);
+  background-color: white;
 }
 
 .card-produto figure img {
   width: 100%;
   max-height: 100%;
+  border-radius: 6px 6px 0px 0px;
+  
 }
 
 .card-produto section {
@@ -56,6 +59,13 @@
 
 .card-produto section .preco {
   font-size: 26px;
+}
+
+.card-produto section .preco > em{
+  font-size: 14px;
+  color: green;
+  text-decoration: line-through;
+  margin-left: 5px;
 }
 
 .card-produto section .parcelamento {
@@ -83,4 +93,9 @@
   margin-top: 16px;
   font-size: 16px;
   color: var(--textSecundary);
+}
+
+.btnDeletar:hover{
+  transform: scale(1.5);
+  cursor: pointer;
 }

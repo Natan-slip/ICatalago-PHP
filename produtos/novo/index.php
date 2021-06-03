@@ -1,13 +1,18 @@
 <?php
+// require("../database/cenexao.php");
+require("../../database/conexao.php");
+session_start();
 
-  require("../../database/conexao.php");
+if (!isset($_SESSION['id'])) {
+  //verificado se o usuario logou, caso não tenha, ele é redirecioando para a index com uma mensagem de erro 
+  $_SESSION['mensagem'] = "Acesso negado, você precisa logar.";
 
-  $sql = "SELECT * FROM tbl_categoria";
-
-  $resultado = mysqli_query($conexao, $sql);
-
+  header("location: ../index.php");
+}
+$sqlSlect = "SELECT * FROM tbl_categoria";
+$resultado = mysqli_query($conexao, $sqlSlect) or die(mysqli_error($conexao));
+// $registro = mysqli_fetch_array($resultado);
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -20,95 +25,91 @@
 </head>
 
 <body>
+  <!-- <header>
+    <input type="search" placeholder="Pesquisar" />
+  </header> -->
   <?php
-      include("../../componentes/header/header.php");
-
-      if (!isset($_SESSION["usuarioId"])) {
-
-        $_SESSION["mensagem"] = "Você precisa fazer o login para ter acesso há essa página.";
-
-        header("location: ../index.php");
-      }
+  include("../../componentes/header/header.php");
   ?>
   <div class="content">
     <section class="produtos-container">
       <main>
-        <form class="form-produto" method="POST" action="action.php" enctype="multipart/form-data">
-          <input type="hidden" name="acao" value="inserir" />
+        <form class="form-produto" method="POST" action="./acaoNovoProdutos.php" enctype="multipart/form-data">
+          <input type="hidden" value="inserir" name="acao" />
           <h1>Cadastro de produto</h1>
           <ul>
-          <?php
-
-            if (isset($_SESSION["erros"])) {
-
-              foreach ($_SESSION["erros"] as $erro) {
+            <?php
+            //verifica se existe erros na sessão do usuario
+            if (isset($_SESSION['erros'])) {
+              $erros = $_SESSION['erros'];
+              foreach ($erros as $erro) {
             ?>
                 <li><?= $erro ?></li>
             <?php
               }
-
-              unset($_SESSION["erros"]);
+              //eliminar da sessão os erros ja mostrado
+              unset($_SESSION['erros']);
             }
             ?>
           </ul>
           <div class="input-group span2">
             <label for="descricao">Descrição</label>
-            <input type="text" id="descricao" name="descricao" required>
+            <input type="text" id="descricao" required value="" name="descricao">
           </div>
-
           <div class="input-group">
             <label for="peso">Peso</label>
-            <input type="text" id="peso" name="peso" placeholder="Apenas inserir o número" required>
+            <input type="text" id="peso" required value="" name="peso">
           </div>
-
           <div class="input-group">
             <label for="quantidade">Quantidade</label>
-            <input type="text" id="quantidade" name="quantidade" required>
+            <input type="text" id="quantidade" required value="" name="quantidade">
           </div>
-
           <div class="input-group">
             <label for="cor">Cor</label>
-            <input type="text" id="cor" name="cor" required>
+            <input type="text" id="cor" required value="" name="cor">
           </div>
-
           <div class="input-group">
             <label for="tamanho">Tamanho</label>
-            <input type="text" id="tamanho" name="tamanho" placeholder="Apenas inserir o número">
+            <input type="text" id="tamanho" value="" name="tamanho">
           </div>
-
           <div class="input-group">
             <label for="valor">Valor</label>
-            <input type="text" id="valor" name="valor" required>
+            <input type="text" id="valor" required value="" name="valor">
           </div>
-
           <div class="input-group">
             <label for="desconto">Desconto</label>
-            <input type="text" id="desconto" name="desconto" placeholder="Apenas inserir o número">
+            <input type="text" id="desconto" value="" name="desconto">
           </div>
           <div class="input-group">
             <label for="categoria">Categoria</label>
-            <select id="categoria" name="categoria" required>
-              <option value="">SELECIONE</option>
+            <select name="categoria" id="categoria">
+              <option readme>
+                Selecione uma Categoria
+              </option>
               <?php
-              while ($categoria = mysqli_fetch_array($resultado)) {
+              while ($registro = mysqli_fetch_array($resultado)) {
+
               ?>
-                <option value="<?= $categoria["id"] ?>"> <?= $categoria["descricao"] ?></option>
+                <option value="<?= $registro['id'] ?>">
+                  <?= $registro['descricao'] ?>
+                </option>
               <?php
               }
-              ?>  
+
+              ?>
             </select>
           </div>
           <div class="input-group">
-            <label for="categoria">Foto</label>
-            <input type="file" name="foto" id="foto" accept="image/*" />
-          </div>  
+            <label for="input-file">Foto</label>
+
+            <input type="file" id="input-file" name="foto" accept="image/*" required>
+          </div>
           <button onclick="javascript:window.location.href = '../'">Cancelar</button>
           <button>Salvar</button>
         </form>
       </main>
     </section>
   </div>
-  
   <footer>
     SENAI 2021 - Todos os direitos reservados
   </footer>

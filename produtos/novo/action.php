@@ -1,82 +1,118 @@
 <?php
-
-     require("../../database/conexao.php");
-
-
-     if(isset($_POST['descricao']) && isset($_POST['peso']) && isset($_POST['quantidade']) && isset($_POST['cor'])
-     && isset($_POST['tamanho']) && isset($_POST['valor']) && isset($_POST['desconto']) ){
-
-      $descricao = $_POST['descricao'];
-      //precisamos trocar a virgula do decimal por ponto
-      $peso = str_replace(",", ".", $_POST['peso']);
-      $quantidade = $_POST['quantidade'];
-      $cor = $_POST['cor'];
-      $tamanho = $_POST['tamanho'];
-      $valor = str_replace(",", ".", $_POST['valor']);
-      $desconto = $_POST['desconto'] != "" ? $_POST['desconto'] : 0;
-
-        $sqlInsert = "INSERT INTO tbl_produto (descricao, peso, quantidade, cor, tamanho, valor, desconto) 
-        VALUES ('$descricao', $peso, $quantidade, '$cor', '$tamanho', $valor, '$desconto');";
-
-        $resultado = mysqli_query($conexao, $sqlInsert) or die(mysqli_error($conexao));
+//inicializa a sessão no php
+//todo arquivo que utilizar sessão, precisa chamar a session_start()
+session_start();
+//validação vou fazer daqui a pouco
+function validarCampos()
+{
+    //declara um vetor de erros    
+    $erros = [];
+    //validar se campo descricao está preenchido    
+    if (!isset($_POST["descricao"]) && $_POST["descricao"] == "") {
+        $erros[] = "O campo descrição é obrigatório";
     }
+    //validar se o campo peso está preenchido    
+    if (!isset($_POST["peso"]) && $_POST["peso"] == "") {
+        $erros[] = "O campo peso é obrigatório";
+        //validar se o campo peso é um número    
+    } elseif (!is_numeric(str_replace(",", ".", $_POST["peso"]))) {
+        $erros[] = "O campo peso deve ser um número";
+    }
+    //validar se o campo quantidade está preenchido    
+    if (!isset($_POST["quantidade"]) && $_POST["quantidade"] == "") {
+        $erros[] = "O campo quantidade é obrigatório";
+        //validar se o campo quantidade é um número    
+    } elseif (!is_numeric(str_replace(",", ".", $_POST["quantidade"]))) {
+        $erros[] = "O campo quantidade deve ser um número";
+    }
+    if (!isset($_POST["cor"]) && $_POST["cor"] == "") {
+        $erros[] = "O campo cor é obrigatório";
+    }
+    if (!isset($_POST["valor"]) && $_POST["valor"] == "") {
+        $erros[] = "O campo valor é obrigatório";
+    } elseif (!is_numeric(str_replace(",", ".", $_POST["valor"]))) {
+        $erros[] = "O campo valor deve ser um número";
+    }
+    //se o campo desconto veio preenchido, testa se ele é numérico    
+    if (isset($_POST["desconto"]) && $_POST["desconto"] != "" && !is_numeric(str_replace(",", ".", $_POST["desconto"]))) {
+        $erros[] = "O campo desconto deve ser um número";
+    }
+    //verificar se o campo foto está vindo e se ele é uma imagem    
+    if ($_FILES["foto"]["error"] == UPLOAD_ERR_NO_FILE) {
+        $erros[] = "Você precisa enviar uma imagem";
+    } else {
+        //se o arquivo é uma imagem        
+        $imagemInfos = getimagesize($_FILES["foto"]["tmp_name"]);
+        //se não for uma imagem        
+        if (!$imagemInfos) {
+            $erros[] = "O arquivo precisa ser uma imagem";
+        }
+        //se a imagem for maior que 2MB        
+        if ($_FILES["foto"]["size"] > 1024 * 1024 * 2) {
+            $erros[] = "O arquivo não pode ser maior que 2MB";
+        }
+        //se a imagem não for quadrada [[[--DESAFIO--]]]        //se a largura e a altura forem iguais, a imagem é quadrada    
+    }
+        //retorna os erros    
+    return $erros;
+}
+require("../database/conexao.php");
 
-    header ("location: index.php");
+switch ($_POST["acao"]) {
 
-    session_start();
+    case "inserir":
 
-    function validarCampos(){
-      $erros = [];
+        //chamamos a função de validação para verificicar se tem erros        
+        $erros = validarCampos();
 
-      //validar se o campo descricao esta setado
-      if (!isset($_POST['descricao']) && $_POST['descricao'] == "") {
-          $erros[] = "O campo descricao é obrigatório";
-      }
+        //se houver erros        
+        if (count($erros) > 0) {
+            //incluímos um campo erros na sessão e atribuímos o vetor de erros a ele            
+            $_SESSION["erros"] = $erros;
 
-      //validar se o campo quantidade esta setado
-      if (!isset($_POST['quantidade']) && $_POST['quantidade'] == "") {
-          $erros[] = "O campo quantidade é obrigatório";
-      }elseif(isset($_POST['quantidade']) && $_POST['quantidade'] != "" && !is_numeric(str_replace(",", ".", $_POST['quantidade']))){
-          //validar se o campo quantidade é um numero  
-          $erros[] = "O campo quantidade deve ser um numero";
-      }
+            //redireciona para a págino do formulário            
+            header("location: novo/index.php");
+        }
 
-      //validar se o campo cor esta setado
-      if (!isset($_POST['cor']) && $_POST['cor'] == "") {
-          $erros[] = "O campo cor é obrigatório";
-      }
+        //pegamos o nome original do arquivo        
+        $nomeArquivo = $_FILES["foto"]["name"];
 
-      //validar se o campo valor esta setado 
-      if (!isset($_POST['valor']) && $_POST['valor'] == "") {
-          $erros[] = "O campo valor é obrigatório";
-      }elseif(isset($_POST['valor']) && $_POST['valor'] != "" && !is_numeric(str_replace(",", ".", $_POST['valor']))){
-          //validar se o campo valor é um numero  
-          $erros[] = "O campo valor deve ser um numero";
-      }
+        //extraímos do nome original a extensão        
+        $extensao = pathinfo($nomeArquivo, PATHINFO_EXTENSION);
 
+        //geramos um novo nome único utilizando o unix timestamp        
+        $novoNomeArquivo = md5(microtime()) . ".$extensao";
 
-      //Validar se o campo peso esta preenchido
-      if(!isset($_POST['peso']) && $_POST['peso'] == ""){
-          $erros[] = "O campo peso é obrigatório";
-      }elseif(!is_numeric(str_replace(",", ".", $_POST['peso']))){
-                  //validar se o campo peso é um numero   
-          $erros[] = "O campo peso deve ser um numero";
-      }
+        //movemos a foto para a pasta fotos dentro de produtos        
+        move_uploaded_file($_FILES["foto"]["tmp_name"], "fotos/$novoNomeArquivo");
 
-      //validar se o campo desconto é um numero  
-      if(isset($_POST['desconto']) && $_POST['desconto'] != "" && !is_numeric(str_replace(",", ".", $_POST['desconto']))){
-          $erros[] = "O campo desconto deve ser um numero";
-      }
+        //recebemos os valores em variáveis        
+        $descricao = $_POST["descricao"];
 
-      return $erros;
-  }
+        //precisamos trocar a vírgula do decimal por ponto        
+        //o bando de dados espera ponto no separador de decimal        
+        $peso = str_replace(",", ".", $_POST["peso"]);
+        $quantidade = $_POST["quantidade"];
+        $cor = $_POST["cor"];
+        $tamanho = $_POST["tamanho"];
+        $valor = str_replace(",", ".", $_POST["valor"]);
+        $desconto = $_POST["desconto"] != "" ? $_POST["desconto"] : 0;
 
-  $erros = validarCampos();
+        //declaramos o sql de insert no banco de dados        
+        $sqlInsert = " INSERT INTO tbl_produto (descricao, peso, quantidade, cor, tamanho, valor, desconto, imagem)                         VALUES ('$descricao', $peso, $quantidade, '$cor', '$tamanho', $valor, $desconto, '$novoNomeArquivo') ";
+        echo $sqlInsert;
 
-  if (count($erros) > 0){
-      $_SESSION["erros"] = $erros;
+        //executamos o sql        
+        $resultado = mysqli_query($conexao, $sqlInsert) or die(mysqli_error($conexao));
 
-      header("location: ../produtos/novo/index.php?erros=$erros");
-  }
-
-  ?>  
+        //verificamos se deu certo ou não        
+        if ($resultado) {
+            $mensagem = "Produto inserido com sucesso!";
+        } else {
+            $mensagem = "Erro ao inserir o produto!";
+        }
+        //redirecionamos para a página de listagem        
+        header("location: index.php");
+        break;
+    
+}
