@@ -4,11 +4,11 @@ Catálogo para divulgação de produtos.
 
 ## 🚀 Começando
 
-Atividade de PHP
+Para iniciar, clone o projeto para dentro da sua pasta htdocs.
 
 ### 📋 Tarefa
 
-implementar o cadastro de produtos na tela /produtos/novo/index.php
+Você deve implementar o cadastro de produtos na tela /produtos/novo/index.php
 
 ### 💾 Criação do Banco de Dados
 

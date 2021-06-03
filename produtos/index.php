@@ -1,27 +1,29 @@
 <?php
-session_start();
 
 require("../database/conexao.php");
 
+$pesquisa = isset($_GET["p"]) ? $_GET["p"] : null;
 
-if (isset($_POST['pesquisa'])) {
-    $filtroPesquisa = $_POST['pesquisa'];
-    $sql =  "SELECT p.*, c.descricao as categoria FROM tbl_produto p
-INNER JOIN tbl_categoria c ON p.categoria_id = c.id
-WHERE p.descricao LIKE '%$filtroPesquisa%'
-OR c.descricao LIKE '%$filtroPesquisa%'
-ORDER BY p.id DESC;";
-} else {
+if ($pesquisa) {
     $sql = "SELECT p.*, c.descricao as categoria FROM tbl_produto p
-INNER JOIN tbl_categoria c ON p.categoria_id = c.id
-ORDER BY p.id DESC;";
+    INNER JOIN tbl_categoria c ON p.categoria_id = c.id
+    WHERE p.descricao LIKE '%$pesquisa%'
+    OR c.descricao LIKE '%$pesquisa%'
+    ORDER BY p.id DESC";
+} else {
+    $sql = " SELECT p.*, c.descricao as categoria FROM tbl_produto p
+    INNER JOIN tbl_categoria c ON p.categoria_id = c.id
+    ORDER BY p.id DESC ";
 }
+
+
 
 $resultado = mysqli_query($conexao, $sql) or die(mysqli_error($conexao));
 
-$registro = mysqli_fetch_array($resultado);
 
 ?>
+
+
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -39,100 +41,67 @@ $registro = mysqli_fetch_array($resultado);
     ?>
     <div class="content">
         <section class="produtos-container">
-
             <?php
-            if (isset($_SESSION['id']) && isset($_SESSION['nome'])) {
+            //autorização
+
+            //se o usuário estiver logado, mostrar os botões
+            if (isset($_SESSION["usuarioId"])) {
             ?>
                 <header>
                     <button onclick="javascript:window.location.href ='./novo/'">Novo Produto</button>
-                    <button onclick="javascript:window.location.href ='../categorias'">Adicionar Categoria</button>
+                    <button onclick="javascript:window.location.href ='../categorias/'">Adicionar Categoria</button>
                 </header>
             <?php
             }
             ?>
             <main>
-                <!-- <article class="card-produto">
-                    <figure>
-                        <img src="http://3.bp.blogspot.com/-u34_1MW1w5g/T_eNqYLmtFI/AAAAAAAAEP0/jnssgMNcS8Y/s1600/converse-all-star-dark-blue.png" />
-                    </figure>
-                    <section>
-                        <span class="preco">R$ 1000,00</span>
-                        <span class="parcelamento">ou em <em>10x R$100,00 sem juros</em></span>
-
-                        <span class="descricao">Produto xyz cor preta novo perfeito estado 100%</span>
-                        <span class="categoria">
-                            <em>Calçados</em> <em>Vestuário</em><em>Calçados</em>
-                        </span>
-                    </section>
-                    <footer>
-                    </footer>
-                </article> -->
                 <?php
-                foreach ($resultado as $registro) {
-                    $qtdParcelas = $registro['valor'] > 1000 ? 12 : 6;
-                    $valorParcela = $registro['valor'] / $qtdParcelas;
-                    $valorParcela = number_format($valorParcela, 2, ",", '.');
+                while ($produto = mysqli_fetch_array($resultado)) {
+                    $valor = $produto["valor"];
+                    $desconto = $produto["desconto"];
 
-                    //Parcelas
-                    $preco = $registro['valor'];
-                    $desconto =  $registro['desconto'];
-                    $precoDescontado = ($desconto / 100) * $preco;
-                    $precoFinalComDesconto = $preco - $precoDescontado;
+                    $valorDesconto = 0;
+
+                    if ($desconto > 0) {
+                        $valorDesconto = ($desconto / 100) * $valor;
+                    }
+
+                    $qntdParcelas = $valor > 1000 ? 12 : 6;
+                    $valorComDesconto = $valor - $valorDesconto;
+                    $valorParcela = $valorComDesconto / $qntdParcelas;
+
+
                 ?>
+                    <input type="hidden" name="acao" value="<?php $produto["id"] ?>" />
                     <article class="card-produto">
                         <figure>
-                            <!-- mostrar a imagem do produto (que veio do banco)- -->
-                            <img src="./imagensProdutos/<?= $registro['imagem'] ?>" />
+                            <img src="fotos/<?= $produto["imagem"] ?>" />
+                            <?php
+
+                            ?>
+
                         </figure>
                         <section>
-                            <span class="preco">
-                                <!-- mostrar o valor do produto FEITO- -->
-                                <!-- DESAFIO2: Implementar o desconto no preço do produto FAZER -->
-                                R$ <?php
-                                    if ($registro['desconto'] == 0) {
-                                    ?>
-                                    <?= number_format($precoFinalComDesconto, 2, ",", ".") ?>
-                                <?php
-                                    } else {
-                                ?>
-                                    <?= number_format($precoFinalComDesconto, 2, ",", ".") ?>
-                                    <em><?= $registro['desconto'] ?> Off</em>
-                                <?php
-                                    }
-                                ?>
+                            <span class="preco">R$ <?= number_format($produto["valor"], 2, ",", ".") ?> <em><?= $desconto ?>% off</em></span>
+                            <span class="parcelamento">ou em <em>10x <?= $qntdParcelas ?>x R$<?= number_format($valorParcela, 2, ",", ".") ?> sem juros</em></span>
 
-                            </span>
-                            <span class="parcelamento">ou em <em>
-                                    <?php
-                                    //DESAFIO: mostrar a opção de parcelamento
-                                    //SE O VALOR > 1000, PARCELAR EM ATÉ 12x 
-                                    if ($registro['valor'] > 1000) {
-                                    ?>
-                                        12x R$100,00 sem juros
-                                    <?php
-                                        //SE NÃO, PARCELAR EM ATÉ 6x
-                                    } else {
-                                    ?>
-                                        6x R$100,00 sem juros
-                                    <?php
-                                    }
-                                    ?>
-                                </em></span>
-
-                            <span class="descricao">
-                                <!-- mostrar a descricao do produto FEITO- -->
-                                <?= $registro['descricao'] ?>
-                            </span>
-
+                            <span class="descricao">Produto <?= $produto["descricao"] ?> cor <?= $produto["cor"] ?></span>
                             <span class="categoria">
-                                <!-- mostrar a categoria do produto FEITO-  -->
-                                <em><?= $registro['categoria'] ?></em>
+                                <em><?= $produto["categoria"] ?></em>
                             </span>
-                            <span class="spanDelete">
-                                <button class="btnDeletar">
-                                    &#128465;
-                                </button>
-                            </span>
+                            <?php
+
+                            if (isset($_SESSION["usuarioId"])) {
+
+                            ?>
+                                <form method="POST" action="acoes.php" id="form-button-deletar">
+                                    <input type="hidden" name="acao" value="deletar" />
+                                    <input type="hidden" name="produtoId" value="<?= $produto["id"] ?>" />
+                                    <button>Deletar</button>
+                                </form>
+                            <?php
+                            }
+                            ?>
                         </section>
                         <footer>
 

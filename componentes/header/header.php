@@ -1,100 +1,89 @@
 <?php
-// session_start();
-//    include("../../database/conexao.php");
-
-//ALT + SHIFT + F   IDENTA
-
+session_start();
 ?>
-<link rel="stylesheet" href="/web-backend-a/icatalogo-parte1/componentes/header/header.css">
+<link href="/web-backend/icatalogoFinal/componentes/header/header.css" rel="stylesheet" />
+
 <?php
-if (isset($_SESSION['mensagem'])) {
+if (isset($_SESSION["mensagem"])) {
 ?>
-    <div class="mensagem">
-        <?= $_SESSION['mensagem'] ?>
+    <div class="mensagens">
+        <?= $_SESSION["mensagem"]; ?>
     </div>
     <script lang="javascript">
+    
         setTimeout(() => {
-            document.querySelector(".mensagem").style.display = "none";
+            document.querySelectpr(".mensagem").style.display = "none";
         }, 4000);
+
     </script>
 <?php
-    unset($_SESSION['mensagem']);
+    unset($_SESSION["mensagem"]);
 }
 ?>
+</div>
 <header class="header">
     <figure>
-        <img src="/web-backend-a/icatalogo-parte1/imgs/logo.png" alt="">
+        <a href="/web-backend/icatalogoFinal/produtos">
+            <img src="/web-backend/icatalogoFinal/imgs/logo.png" />
+        </a>
     </figure>
-    <form method="POST" action="/web-backend-a/icatalogo-parte1/produtos/index.php">
-        <input type="search" placeholder="Pesquisar" name="pesquisa"/>
-        <button>
-            <img src="/web-backend-a/icatalogo-parte1/imgs/lupa.svg">
-        </button>
+    <form method="GET" action="/web-backend/icatalogoFinal/produtos/index.php">
+        <input type="text" placeholder="Pesquisar" name="p" id="pesquisar"/>
+        <button><img src="/web-backend/icatalogofinal/imgs/lupa.svg" /></button>
     </form>
-    <nav>
-        <ul>
-            <a id="menu_admin">Administrador</a>
-        </ul>
-    </nav>
-    <div class="container-login" id="container-login">
-        <?php
-        if (isset($_SESSION['msg_erro_lgn'])) {
-            $mensagem_erro = $_SESSION['msg_erro_lgn'];
-        ?>
+    <?php
+    if (!isset($_SESSION["usuarioId"])) {
+    ?>
+        <nav>
             <ul>
-                <li><?= $mensagem_erro ?></li>
+                <a id="menu-admin">Administrar</a>
             </ul>
-        <?php
-        }
-        unset($_SESSION['msg_erro_lgn']);
-        ?>
-
-
-        <h1>Fazer login</h1>
-
-        <form method="POST" action="../componentes/header/acoes_usuario.php">
-            <input type="hidden" name="acao" value="login">
-            <input type="text" placeholder="usuario" name="usuario" />
-            <input type="password" placeholder="senha" name="senha" />
-            <button>Entrar</button>
-
-            <!-- teste do desafio -->
-            <?php
-            if (isset($_SESSION['id']) && isset($_SESSION['nome'])) {
-            ?>
-                <button>logout</button>
-                <!-- teste -->
-                <input type="hidden" name="acao" value="logout" />
-            <?php
-                // session_destroy();
-            }
-            ?>
-            <button type="link" id="btn_return_home">
-                <a href="/web-backend-a/icatalogo-parte1/produtos/index.php" id="link_return_home">
-                    Voltar para Home
-                </a>
-            </button>
+        </nav>
+        <div id="container-login" class="container-login">
+            <h1>Fazer Login</h1>
+            <form method="POST" action="/web-backend/icatalogofinal/componentes/header/acoesLogin.php">
+                <input type="hidden" name="acao" value="login" />
+                <input type="text" name="usuario" placeholder="Usuário" />
+                <input type="password" name="senha" placeholder="Senha" />
+                <button>Entrar</button>
+            </form>
+        </div>
+    <?php
+    } else {
+    ?>
+        <nav>
+            <ul>
+                <a id="menu-admin" onclick="logout()">Sair</a>
+            </ul>
+        </nav>
+        <form id="form-logout" style="display:none" method="POST" action="/web-backend/icatalogofinal/componentes/header/acoesLogin.php">
+            <input type="hidden" name="acao" value="logout" />
         </form>
-    </div>
+    <?php
+    }
+    ?>
 </header>
 <script lang="javascript">
-    //selecionamos o botão administrar e adicionamos o evento de click para ele
-    document.querySelector("#menu_admin").addEventListener("click", toggleLogin);
-    //função do evento do click
+    document.querySelector("#menu-admin").addEventListener("click", toggleLogin);
+
+    function logout() {
+        document.querySelector("#form-logout").submit();
+    }
+
     function toggleLogin() {
         let containerLogin = document.querySelector("#container-login");
-        let formContainer = document.querySelector("#container-login > form");
-        let h1Container = document.querySelector("#container-login > h1");
-        //se o container estiver oculto, motramos
+        let h1Form = document.querySelector("#container-login > h1");
+        let form = document.querySelector("#container-login > form");
+        //se estiver oculto, mostra 
         if (containerLogin.style.opacity == 0) {
-            formContainer.style.display = "flex";
-            h1Container.style.display = "block";
+            h1Form.style.display = "block";
+            form.style.display = "flex";
             containerLogin.style.opacity = 1;
-            containerLogin.style.height = "300px";
+            containerLogin.style.height = "200px";
+            //se não, oculta
         } else {
-            //se não, ocultamos
-            formContainer.style.display = "none";
-            h1Container.style.display = "none";
+            h1Form.style.display = "none";
+            form.style.display = "none";
             containerLogin.style.opacity = 0;
             containerLogin.style.height = "0px";
         }

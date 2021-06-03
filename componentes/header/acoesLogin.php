@@ -1,75 +1,72 @@
 <?php
-
 session_start();
-
-
 require("../../database/conexao.php");
 
-function validarCampos() {
-
+function validarCampos()
+{
     $erros = [];
 
-    if(!isset($_POST["usuario"]) && $_POST["usuario"] == "") {
+    if (!isset($_POST["usuario"]) && $_POST["usuario"] == "") {
         $erros = "O campo usuário é obrigatório";
     }
 
-    if(!isset($_POST["senha"]) && $_POST["senha"] == "") {
+    if (!isset($_POST["senha"]) && $_POST["senha"] == "") {
         $erros = "O campo senha é obrigatório";
     }
+
+    return $erros;
 }
 
-switch($_POST["acao"]){
-
+//autenticação
+switch ($_POST["acao"]) {
     case "login":
 
         $erros = validarCampos();
 
-        if(count($erros) > 0) {
-            $_SESSION["mensagem"] = $erros;
+        if (count($erros) > 0) {
+            $_SESSION["mensagens"] = $erros;
+
+            header("location: ../../produtos/index.php");
         }
 
-            //receber os campos do fomulário
-            $usuario = $_POST['usuario'];
-            $senha = $_POST['senha'];
-   
-            //monstar o sql select na tabela tbl_adminitrador
-            //SELECT * FROM tbl_adminitrador WHERE usuario = $usuario;
-            $sql = "SELECT * FROM tbl_administrador WHERE usuario = '$usuario'";
+        //receber os campos do fomulário
+        $usuario = $_POST["usuario"];
+        $senha = $_POST["senha"];
 
-            //executar o sql
-            $resultado = mysqli_query($conexao, $sql);
+        //montar o sql select na tabela tbl_adminitrador
+        //SELECT * FROM tbl_administrador WHERE usuario = $usuario;
+        $sql = " SELECT * FROM tbl_administrador WHERE usuario = '$usuario' ";
 
-            $usuario = mysqli_fetch_array($resultado);
+        //executar o sql
+        $resultado = mysqli_query($conexao, $sql);
 
-            //verificar se o usuário existe e se a senha está correta
-            if(!$usuario || !password_verify($senha, $usuario["senha"])) {
-                $erros[] = "Usuário e/ou senha inválidos";
+        $usuario = mysqli_fetch_array($resultado);
 
-                $_SESSION["erros"] = $erros;
-            }
-            else {
+        var_dump($usuario);
 
-                //se estiver correta, salvar o id e o nome do usuário na sessão
-                $_SESSION["usuarioId"] = $usuario["id"];   
-                $_SESSION["usuarioNome"] = $usuario["id"];
+        //verificar se o usuário existe e se a senha está correta
+        if (!$usuario || !password_verify($senha, $usuario["senha"])) {
+            $erros[] = "Usuário e/ou senha inválidos";
 
-                $_SESSION["mensagem"] = "Bem vindo, ". $usuario["nome"];
+            $_SESSION["erros"] = $erros;
+        } else {
+            //se estiver correta, salvar o id e o nome do usuário na sessão
+            $_SESSION["usuarioId"] = $usuario["id"];
+            $_SESSION["usuarioNome"] = $usuario["nome"];
 
-            }
+            $_SESSION["mensagem"] = "Bem vindo, " . $usuario["nome"];
+        }
 
-            //redirecionar para tela de listagem de produtos
-            header("location: ../../produtos/index.php");    
-
-            break;
-
-
-    case "logout":
-
-        //implementar o logout
-        session_destroy();
-
-        header("location: ../../produtos/index.php"); 
+        //redirecionar para tela de listagem de produtos
+        header("location: ../../produtos/index.php");
 
         break;
 
+    case "logout":
+        //implementar o logout
+        session_destroy();
+
+        header("location: ../../produtos/index.php");
+
+        break;
 }

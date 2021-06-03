@@ -39,14 +39,49 @@
   align-items: center;
 
   border-bottom: 1px solid var(--backgroundSecondary);
-  background-color: white;
 }
 
 .card-produto figure img {
   width: 100%;
   max-height: 100%;
-  border-radius: 6px 6px 0px 0px;
-  
+
+}
+
+.card-produto figure button{
+  position:absolute;
+    z-index:1;
+    padding:0;
+    margin-left: 260px;
+    margin-top: -100px;
+}
+
+.card-produto figure button {
+  padding: 8px 16px;
+  background-color: transparent;
+  height: 40px;
+
+  border: 2px solid transparent;
+  color: rgba(255, 0, 0, 0.616);
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 14px;
+
+  cursor: pointer;
+}
+
+.card-produto figure button:focus {
+  outline: none;
+}
+
+.card-produto figure button:hover {
+  box-shadow: 0px 2px 10px 5px var(--boxShadow);
+  border: 2px solid rgba(255, 0, 0, 0.377);
+
+  transition: 0.2s;
+}
+
+.card-produto figure button:active {
+  color: red;
 }
 
 .card-produto section {
@@ -57,7 +92,7 @@
   color: var(--textPrimary);
 }
 
-.card-produto section .preco {
+.card-produto section .preco{
   font-size: 26px;
 }
 
@@ -65,7 +100,6 @@
   font-size: 14px;
   color: green;
   text-decoration: line-through;
-  margin-left: 5px;
 }
 
 .card-produto section .parcelamento {
@@ -93,9 +127,4 @@
   margin-top: 16px;
   font-size: 16px;
   color: var(--textSecundary);
-}
-
-.btnDeletar:hover{
-  transform: scale(1.5);
-  cursor: pointer;
 }

@@ -1,31 +1,17 @@
 <?php
-session_start();
+
+//importar o banco de dados
 require("../database/conexao.php");
 
+//declarar o sql de select
+$sql = " SELECT * FROM tbl_categoria ";
 
-    // Criar a tabela de categorias. FEITO
+//executar o sql
+$resultado = mysqli_query($conexao, $sql) or die(mysqli_error($conexao));
 
-    // Fazer a inclusão, listagem e deleção de categorias. FEITO
-    
-
-    // Proteger a página de categorias caso o usuário não estiver logado. FEITO
-    if(!isset($_SESSION['id'])){
-        //verificado se o usuario logou, caso não tenha, ele é redirecioando para a index com uma mensagem de erro 
-        $_SESSION['mensagem'] = "Acesso negado, você precisa logar.";
-    
-        header("location: ../produtos/index.php");
-    }
-
-    // DESAFIO: Na página de novo produto, fazer um <select> listando as categorias. FAZER
-  
-$sqlSlect = "SELECT * FROM tbl_categoria";
-$resultado = mysqli_query($conexao, $sqlSlect) or die(mysqli_error($conexao));
-$registros = mysqli_fetch_array($resultado);
-
-// $_SESSION['registroCategoria'] = $registros['descricao'];
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 
 <head>
     <meta charset="UTF-8">
@@ -38,53 +24,63 @@ $registros = mysqli_fetch_array($resultado);
 
 <body>
     <?php
-    require("../componentes/header/header.php");
+    include("../componentes/header/header.php");
     ?>
     <div class="content">
         <section class="categorias-container">
             <main>
-                <form class="form-categorias" action="./acoes_categoria.php" method="POST">
+                <form class="form-categoria" method="POST" action="./acoes.php">
+                    <input type="hidden" name="acao" value="inserir" />
                     <h1 class="span2">Adicionar Categorias</h1>
+                    <ul>
+                        <?php
+                        //verifica se existe erros na sessão do usuário
+                        if (isset($_SESSION["erros"])) {
+                            //se existir percorre os erros exbindo na tela
+                            foreach ($_SESSION["erros"] as $erro) {
+                        ?>
+                                <li><?= $erro ?></li>
+                        <?php
+                            }
+                            //eliminar da sessão os erros já mostrados
+                            unset($_SESSION["erros"]);
+                        }
+                        ?>
+                    </ul>
                     <div class="input-group span2">
-                        <label for="descricao">Descricao</label>
-                        <input type="hidden" name="acao" value="inserir" />
-                        <input type="text" name="descricao" id="descricao" required />
+                        <label for="descricao">Descrição</label>
+                        <input type="text" name="descricao" id="descricao"/>
                     </div>
-                    <button type="button" onclick="javascript: window.location.href='../produtos/index.php'">Cancelar</button>
+                    <button type="button" onclick="javascript:window.location.href = '../produtos'">Cancelar</button>
                     <button>Salvar</button>
                 </form>
-                <h1>Lista de categorias</h1>
-
+                <h1>Lista de Categorias</h1>
                 <?php
-                    while($registro = mysqli_fetch_array($resultado)){
-                            // foreach ($registros as $registro) {
+                //percorrer os resultados da consulta
+                //mostrando um card para cada categoria
+                if (mysqli_num_rows($resultado) == 0) {
+                    echo "<p style='text-align: center'>Nenhuma categoria cadastrada.</p>";
+                }
+                while ($categoria = mysqli_fetch_array($resultado)) {
                 ?>
                     <div class="card-categorias">
-                        <?= $registro['descricao'] ?>
-                        <!-- <img onclick="excluir(<?= $registro['id'] ?>)"  src="https://icons.veryicon.com/png/o/construction-tools/coca-design/delete-189.png" /> -->
-                        <form action="./acoes_categoria.php" method="POST" id="form__excluir">
-                            <input type="hidden" id="deletar" name="acao" value="deletar" />
-                            <input type="hidden" id="categoriaId" name="categoriaId" value="<?= $registro['id'] ?>" />
-                            <button id="btn_lixeira">&#128465;</button>
-                        </form>
-                    </div> 
+                        <?= $categoria["descricao"] ?>
+                        <img onclick="deletar(<?= $categoria['id'] ?>)" src="https://icons.veryicon.com/png/o/construction-tools/coca-design/delete-189.png" />
+                    </div>
                 <?php
-                    }
+                }
                 ?>
-                <!-- Deleção atraves de javascript -->
-                <!-- <form id="form-deletar" action="./acoes_categoria.php" method="POST">
-                    <input type="hidden" value="deletar" name="acao">
-                    <input type="hidden" id="categoriaId" name="categoriaId" value="<?= $registro['id'] ?>">
-                </form> -->
-                <!-- teste com o foreach -->
-                
+                <form id="form-deletar" method="POST" action="./acoes.php">
+                    <input type="hidden" name="acao" value="deletar" />
+                    <input type="hidden" id="categoriaId" name="categoriaId" value="" />
+                </form>
             </main>
         </section>
     </div>
     <script lang="javascript">
-        function excluir(categoriaId){
-            document.querySelector('#categoriaId').value = categoriaId;
-            document.querySelector('#form-deletar').submit();
+        function deletar(categoriaId){
+            document.querySelector("#categoriaId").value = categoriaId;
+            document.querySelector("#form-deletar").submit();
         }
     </script>
 </body>
