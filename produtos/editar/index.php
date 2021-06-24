@@ -1,6 +1,21 @@
 <?php
 session_start();
+
 require("../../database/conexao.php");
+
+$produtoId = $_GET["id"];
+
+$sqlProduto = "SELECT * FROM tbl_produto WHERE id = $produtoId ";
+
+$resultado = mysqli_query($conexao, $sqlProduto);
+
+$produto = mysqli_fetch_array($resultado);
+
+if(!$produto){
+  echo "Ops, este produto não existe, acesso negado!";
+
+  exit();
+}
 
 $sql = " SELECT * FROM tbl_categoria ";
 
@@ -15,8 +30,8 @@ $resultado = mysqli_query($conexao, $sql) or die(mysqli_error($conexao));
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../../styles-global.css" />
-  <link rel="stylesheet" href="./novo.css" />
-  <title>Administrar Produtos</title>
+  <link rel="stylesheet" href="./editar.css" />
+  <title>Editar Produtos</title>
 </head>
 
 <body>
@@ -35,8 +50,9 @@ $resultado = mysqli_query($conexao, $sql) or die(mysqli_error($conexao));
     <section class="produtos-container">
       <main>
         <form class="form-produto" method="POST" action="../acoes.php" enctype="multipart/form-data">
-          <input type="hidden" name="acao" value="inserir" />
-          <h1>Cadastro de produto</h1>
+          <input type="hidden" name="acao" value="editar" />
+          <input type="hidden" name="produtoId" value="<?= $produto["id"] ?>" />
+          <h1>Editar produto</h1>
           <ul>
             <?php
             //verifica se existe erros na sessão do usuário
@@ -54,31 +70,31 @@ $resultado = mysqli_query($conexao, $sql) or die(mysqli_error($conexao));
           </ul>
           <div class="input-group span2">
             <label for="descricao">Descrição</label>
-            <input type="text" name="descricao" id="descricao" required>
+            <input type="text" name="descricao" id="descricao" value="<?= $produto["descricao"] ?>" required>
           </div>
           <div class="input-group">
             <label for="peso">Peso</label>
-            <input type="text" name="peso" id="peso" required>
+            <input type="text" name="peso" id="peso" value="<?= $produto["peso"] ?>" required>
           </div>
           <div class="input-group">
             <label for="quantidade">Quantidade</label>
-            <input type="text" name="quantidade" id="quantidade" required>
+            <input type="text" name="quantidade" id="quantidade" value="<?= $produto["quantidade"] ?>" required>
           </div>
           <div class="input-group">
             <label for="cor">Cor</label>
-            <input type="text" name="cor" id="cor" required>
+            <input type="text" name="cor" id="cor" value="<?= $produto["cor"] ?>" required>
           </div>
           <div class="input-group">
             <label for="tamanho">Tamanho</label>
-            <input type="text" name="tamanho" id="tamanho">
+            <input type="text" name="tamanho" id="tamanho" value="<?= $produto["tamanho"] ?>">
           </div>
           <div class="input-group">
             <label for="valor">Valor</label>
-            <input type="text" name="valor" id="valor" required>
+            <input type="text" name="valor" id="valor" value="<?= number_format($produto["valor"], 2, ",", ".") ?>" required>
           </div>
           <div class="input-group">
             <label for="desconto">Desconto</label>
-            <input type="text" name="desconto" id="desconto">
+            <input type="text" name="desconto" id="desconto" value="<?= $produto["desconto"] ?>">
           </div>
           <div class="input-group">
             <label for="categoria">Categoria</label>
@@ -87,7 +103,10 @@ $resultado = mysqli_query($conexao, $sql) or die(mysqli_error($conexao));
               <?php
               while ($categoria = mysqli_fetch_array($resultado)) {
               ?>
-                <option value="<?= $categoria["id"] ?>"><?= $categoria["descricao"] ?></option>
+                <option value="<?= $categoria["id"] ?>" <?= $categoria["id"] == $produto["categoria_id"] ? "selected" : "" ?>>
+                <?= $categoria["descricao"] ?>
+                </option>
+                
               <?php
               }
               ?>

@@ -1,7 +1,4 @@
-<?php
-session_start();
-?>
-<link href="/web-backend/icatalogoFinal/componentes/header/header.css" rel="stylesheet" />
+<link href="/componentes/header/header.css" rel="stylesheet" />
 
 <?php
 if (isset($_SESSION["mensagem"])) {
@@ -23,13 +20,28 @@ if (isset($_SESSION["mensagem"])) {
 </div>
 <header class="header">
     <figure>
-        <a href="/web-backend/icatalogoFinal/produtos">
-            <img src="/web-backend/icatalogoFinal/imgs/logo.png" />
+        <a href="/produtos/">
+            <img src="/imgs/logo.png" />
         </a>
     </figure>
-    <form method="GET" action="/web-backend/icatalogoFinal/produtos/index.php">
-        <input type="text" placeholder="Pesquisar" name="p" id="pesquisar"/>
-        <button><img src="/web-backend/icatalogofinal/imgs/lupa.svg" /></button>
+    <form method="GET" action="/produtos/index.php">
+        <input type="text" placeholder="Pesquisar" name="p" id="pesquisar" value="<?= isset($_GET["p"]) ? $_GET["p"] : "" ?>"/>
+        <button <?= isset($_GET["p"]) ? "onclick='limparFiltro()'" : "" ?>>
+            <?php
+            if(isset($_GET["p"])){
+            
+            
+            ?>
+            <img style="width: 15px;" src="/web-beckkend/icatalogo/imgs/cancel.svg" />
+            <?php
+            }else {
+            
+            ?>
+            <img src="/imgs/lupa.svg" />
+            <?php
+            }
+            ?>
+        </button>
     </form>
     <?php
     if (!isset($_SESSION["usuarioId"])) {
@@ -41,7 +53,7 @@ if (isset($_SESSION["mensagem"])) {
         </nav>
         <div id="container-login" class="container-login">
             <h1>Fazer Login</h1>
-            <form method="POST" action="/web-backend/icatalogofinal/componentes/header/acoesLogin.php">
+            <form method="POST" action="/componentes/header/acoesLogin.php">
                 <input type="hidden" name="acao" value="login" />
                 <input type="text" name="usuario" placeholder="Usuário" />
                 <input type="password" name="senha" placeholder="Senha" />
@@ -56,7 +68,7 @@ if (isset($_SESSION["mensagem"])) {
                 <a id="menu-admin" onclick="logout()">Sair</a>
             </ul>
         </nav>
-        <form id="form-logout" style="display:none" method="POST" action="/web-backend/icatalogofinal/componentes/header/acoesLogin.php">
+        <form id="form-logout" style="display:none" method="POST" action="/componentes/header/acoesLogin.php">
             <input type="hidden" name="acao" value="logout" />
         </form>
     <?php

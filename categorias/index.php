@@ -1,5 +1,5 @@
 <?php
-
+session_start();
 //importar o banco de dados
 require("../database/conexao.php");
 
@@ -51,7 +51,7 @@ $resultado = mysqli_query($conexao, $sql) or die(mysqli_error($conexao));
                         <label for="descricao">Descrição</label>
                         <input type="text" name="descricao" id="descricao"/>
                     </div>
-                    <button type="button" onclick="javascript:window.location.href = '../produtos'">Cancelar</button>
+                    <button type="button" onclick="javascript:window.location.href = '../produtos/'">Cancelar</button>
                     <button>Salvar</button>
                 </form>
                 <h1>Lista de Categorias</h1>

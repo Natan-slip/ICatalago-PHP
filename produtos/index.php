@@ -1,22 +1,30 @@
 <?php
+session_start();
 
 require("../database/conexao.php");
 
-$pesquisa = isset($_GET["p"]) ? $_GET["p"] : null;
+// $pesquisa = isset($_GET["p"]) ? $_GET["p"] : null;
 
-if ($pesquisa) {
-    $sql = "SELECT p.*, c.descricao as categoria FROM tbl_produto p
-    INNER JOIN tbl_categoria c ON p.categoria_id = c.id
-    WHERE p.descricao LIKE '%$pesquisa%'
-    OR c.descricao LIKE '%$pesquisa%'
-    ORDER BY p.id DESC";
-} else {
-    $sql = " SELECT p.*, c.descricao as categoria FROM tbl_produto p
-    INNER JOIN tbl_categoria c ON p.categoria_id = c.id
-    ORDER BY p.id DESC ";
+// if ($pesquisa) {
+//     $sql = "SELECT p.*, c.descricao as categoria FROM tbl_produto p
+//     INNER JOIN tbl_categoria c ON p.categoria_id = c.id
+//     WHERE p.descricao LIKE '%$pesquisa%'
+//     OR c.descricao LIKE '%$pesquisa%'
+//     ORDER BY p.id DESC";
+// } else {
+//     $sql = " SELECT p.*, c.descricao as categoria FROM tbl_produto p
+//     INNER JOIN tbl_categoria c ON p.categoria_id = c.id
+//     ORDER BY p.id DESC ";
+// }
+
+$sql = " SELECT p.*, c.descricao as categoria FROM tbl_produto p
+         INNER JOIN tbl_categoria c ON p.categoria_id = c.id
+         ORDER BY p.id DESC ";
+
+if(isset($_GET["p"]) && $_GET["p"] != ""){
+    $p = $_GET["p"];
+    $sql .= "WHERE p.descricao LIKE '%$p%' OR c.descricao LIKE '%$p%'";
 }
-
-
 
 $resultado = mysqli_query($conexao, $sql) or die(mysqli_error($conexao));
 
@@ -72,14 +80,22 @@ $resultado = mysqli_query($conexao, $sql) or die(mysqli_error($conexao));
 
 
                 ?>
-                    <input type="hidden" name="acao" value="<?php $produto["id"] ?>" />
+                    <!-- <input type="hidden" name="acao" value="" /> -->
                     <article class="card-produto">
+                        <?php
+                        
+                        if(isset($_SESSION["usuarioId"])){
+                        
+                        ?>
+                        <div class="acoes-produtos">
+                            <img onclick="deletar(<?= $produto['id'] ?>)" src="../imgs/trash.svg" />
+                            <img onclick="javascript: window.location = './editar/?id=<?= $produto['id'] ?>'" src="../imgs/edit.svg" />
+                        </div>
+                        <?php
+                        }
+                        ?>
                         <figure>
                             <img src="fotos/<?= $produto["imagem"] ?>" />
-                            <?php
-
-                            ?>
-
                         </figure>
                         <section>
                             <span class="preco">R$ <?= number_format($produto["valor"], 2, ",", ".") ?> <em><?= $desconto ?>% off</em></span>
@@ -89,19 +105,11 @@ $resultado = mysqli_query($conexao, $sql) or die(mysqli_error($conexao));
                             <span class="categoria">
                                 <em><?= $produto["categoria"] ?></em>
                             </span>
-                            <?php
-
-                            if (isset($_SESSION["usuarioId"])) {
-
-                            ?>
-                                <form method="POST" action="acoes.php" id="form-button-deletar">
+                            <!--<form method="POST" action="acoes.php" id="form-button-deletar">
                                     <input type="hidden" name="acao" value="deletar" />
-                                    <input type="hidden" name="produtoId" value="<?= $produto["id"] ?>" />
+                                    <input type="hidden" name="produtoId" value="" />
                                     <button>Deletar</button>
-                                </form>
-                            <?php
-                            }
-                            ?>
+                                </form> -->
                         </section>
                         <footer>
 
@@ -110,12 +118,24 @@ $resultado = mysqli_query($conexao, $sql) or die(mysqli_error($conexao));
                 <?php
                 }
                 ?>
+                <form id="formDeletar" method="POST" action="./acoes.php">
+                    <input type="hidden" name="acao" value="deletar" />
+                    <input type="hidden" name="produtoId" id="produtoId" />
+                </form>
             </main>
         </section>
     </div>
     <footer>
         SENAI 2021 - Todos os direitos reservados
     </footer>
+    <script lang="javascript">
+        function deletar(produtoId){
+            if(confirm("Tem certeza que deseja deletar este produto?")){
+                document.querySelector("#produtoId").value = produtoId;
+                document.querySelector("#formDeletar").submit();
+            }
+        }
+    </script>
 </body>
 
 </html>
